@@ -2,6 +2,8 @@
 <%
 request.setAttribute("title", "Customer");
 %>
-<jsp:include page="header.jsp"/>
+<jsp:include page="header.jsp">
+  <jsp:param name="page" value="customer"/>
+</jsp:include>
 <h1 class="mt-5 text-center">Customer</h1>
 <jsp:include page="footer.jsp"/>
