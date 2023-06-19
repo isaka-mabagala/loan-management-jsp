@@ -1,7 +1,36 @@
 <%@ page session="true" pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" %>
+<%@ page import="customer.CustomerDAO" %>
+<%@ page import="customer.CustomerBean" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="com.google.gson.Gson" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<jsp:useBean id="customerBean" class="customer.CustomerBean"/>
+<jsp:setProperty name="customerBean" property="*"/>
+
 <%
+String customerId = request.getParameter("customer");
+ArrayList<CustomerBean> customers = CustomerDAO.customers();
 request.setAttribute("title", "Customer");
+request.setAttribute("customers", customers);
+
+// register form submited
+if (customerBean.getFirstName() != null) {
+  CustomerDAO.customerRegister(customerBean);
+
+  response.sendRedirect("customer.jsp");
+  //out.print(CustomerDAO.errorMessage);
+  return;
+}
+
+// get customer by ID
+if (customerId != null) {
+  CustomerBean customer = CustomerDAO.customerById(customerId);
+  out.print(new Gson().toJson(customer));
+  return;
+}
 %>
+
 <jsp:include page="header.jsp">
   <jsp:param name="page" value="customer"/>
 </jsp:include>
@@ -33,40 +62,26 @@ request.setAttribute("title", "Customer");
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <th>1</th>
-        <td>Isaka Mabagala</td>
-        <td>1000</td>
-        <td>+255752988988</td>
-        <td>Morogoro</td>
-        <td>
-          <button
-            type="button"
-            class="btn btn-primary btn-sm px-3"
-            data-bs-toggle="modal"
-            data-bs-target="#updateCustomer"
-          >
-            View
-          </button>
-        </td>
-      </tr>
-      <tr>
-        <th>2</th>
-        <td>Vicent Msomi</td>
-        <td>1001</td>
-        <td>+255655193352</td>
-        <td>Mwanza</td>
-        <td>
-          <button
-            type="button"
-            class="btn btn-primary btn-sm px-3"
-            data-bs-toggle="modal"
-            data-bs-target="#updateCustomer"
-          >
-            View
-          </button>
-        </td>
-      </tr>
+      <c:forEach items="${ customers }" var="customer" varStatus="loop">
+        <tr>
+          <th>${ loop.index + 1 }</th>
+          <td>${ customer.firstName } ${ customer.lastName }</td>
+          <td>${ customer.id }</td>
+          <td>${ customer.phoneNo }</td>
+          <td>${ customer.region }</td>
+          <td>
+            <button
+              type="button"
+              class="btn-view-customer btn btn-primary btn-sm px-3"
+              data-bs-toggle="modal"
+              data-bs-target="#updateCustomer"
+              data-id="${ customer.id }"
+            >
+              View
+            </button>
+          </td>
+        </tr>
+      </c:forEach>
     </tbody>
   </table>
 </div>
@@ -81,7 +96,7 @@ request.setAttribute("title", "Customer");
   aria-labelledby="addCustomerLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content" method="post">
+    <form class="modal-content" action="customer.jsp" method="post">
       <div class="modal-header">
         <h5 class="modal-title text-secondary" id="addCustomerLabel">Add Customer</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -91,14 +106,14 @@ request.setAttribute("title", "Customer");
           type="text"
           class="form-control mb-3"
           placeholder="first name"
-          name="fName"
+          name="firstName"
           required="true"
         >
         <input
           type="text"
           class="form-control mb-3"
           placeholder="last name"
-          name="lName"
+          name="lastName"
           required="true"
         >
         <input
@@ -151,14 +166,14 @@ request.setAttribute("title", "Customer");
           type="text"
           class="form-control mb-3"
           placeholder="first name"
-          name="fName"
+          name="firstName"
           required="true"
         >
         <input
           type="text"
           class="form-control mb-3"
           placeholder="last name"
-          name="lName"
+          name="lastName"
           required="true"
         >
         <input
