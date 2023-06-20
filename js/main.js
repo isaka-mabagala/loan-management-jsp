@@ -5,11 +5,21 @@ $(document).ready(function () {
   $(".btn-view-customer").click(function () {
     var id = $(this).data("id");
 
-    $.ajax(baseUrl + "/customer.jsp?customer=" + id).done(function (
-      responseText
-    ) {
-      //alert(responseText);
-    });
+    axios
+      .get(baseUrl + "/customer.jsp?customer=" + id)
+      .then(function (response) {
+        const customer = response.data;
+        $('#customer-update-form input[name="firstName"]').val(
+          customer.firstName
+        );
+        $('#customer-update-form input[name="lastName"]').val(
+          customer.lastName
+        );
+        $('#customer-update-form input[name="phoneNo"]').val(customer.phoneNo);
+        $('#customer-update-form input[name="region"]').val(customer.region);
+        $('#customer-update-form input[name="street"]').val(customer.street);
+        $('#customer-update-form input[name="id"]').val(id);
+      });
   });
 
   // loan make payment

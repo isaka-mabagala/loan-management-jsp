@@ -33,6 +33,29 @@ public class CustomerDAO {
     }
   }
 
+  public static Boolean customerUpdate(CustomerBean customer) {
+    String query = "UPDATE customer SET firstName=?, lastName=?, phoneNo=?, region=?, street=? WHERE id=?";
+
+    try {
+      Connection con = DBConnection.getConnection();
+      PreparedStatement ps = con.prepareStatement(query);
+      ps.setString(1, customer.getFirstName());
+      ps.setString(2, customer.getLastName());
+      ps.setString(3, customer.getPhoneNo());
+      ps.setString(4, customer.getRegion());
+      ps.setString(5, customer.getStreet());
+      ps.setInt(6, customer.getId());
+      Integer rs = ps.executeUpdate();
+      con.close();
+
+      return rs.equals(1);
+
+    } catch (Exception e) {
+      errorMessage = e.getMessage();
+      return false;
+    }
+  }
+
   public static ArrayList<CustomerBean> customers() {
     ArrayList<CustomerBean> customers = new ArrayList<CustomerBean>();
     String query = "SELECT * FROM customer ORDER BY id DESC";

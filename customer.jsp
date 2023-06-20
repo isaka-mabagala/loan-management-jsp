@@ -9,21 +9,10 @@
 <jsp:setProperty name="customerBean" property="*"/>
 
 <%
-String customerId = request.getParameter("customer");
-ArrayList<CustomerBean> customers = CustomerDAO.customers();
 request.setAttribute("title", "Customer");
-request.setAttribute("customers", customers);
-
-// register form submited
-if (customerBean.getFirstName() != null) {
-  CustomerDAO.customerRegister(customerBean);
-
-  response.sendRedirect("customer.jsp");
-  //out.print(CustomerDAO.errorMessage);
-  return;
-}
 
 // get customer by ID
+String customerId = request.getParameter("customer");
 if (customerId != null) {
   CustomerBean customer = CustomerDAO.customerById(customerId);
   out.print(new Gson().toJson(customer));
@@ -34,6 +23,31 @@ if (customerId != null) {
 <jsp:include page="header.jsp">
   <jsp:param name="page" value="customer"/>
 </jsp:include>
+
+<%
+ArrayList<CustomerBean> customers = CustomerDAO.customers();
+request.setAttribute("customers", customers);
+
+// register form submited
+String register = request.getParameter("register");
+if (register != null) {
+  CustomerDAO.customerRegister(customerBean);
+
+  response.sendRedirect("customer.jsp");
+  //out.print(CustomerDAO.errorMessage);
+  return;
+}
+
+// update form submited
+String update = request.getParameter("update");
+if (update != null) {
+  CustomerDAO.customerUpdate(customerBean);
+
+  response.sendRedirect("customer.jsp");
+  //out.print(CustomerDAO.errorMessage);
+  return;
+}
+%>
 
 <div class="page-header mt-5">
   <div class="d-flex justify-content-between align-items-center">
@@ -58,7 +72,8 @@ if (customerId != null) {
         <th scope="col">ID</th>
         <th scope="col">Contact</th>
         <th scope="col">Region</th>
-        <th scope="col">Region</th>
+        <th scope="col">Street</th>
+        <th scope="col"></th>
       </tr>
     </thead>
     <tbody>
@@ -69,6 +84,7 @@ if (customerId != null) {
           <td>${ customer.id }</td>
           <td>${ customer.phoneNo }</td>
           <td>${ customer.region }</td>
+          <td>${ customer.street }</td>
           <td>
             <button
               type="button"
@@ -140,7 +156,7 @@ if (customerId != null) {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-success">Submit</button>
+        <button type="submit" name="register" class="btn btn-success">Submit</button>
       </div>
     </form>
   </div>
@@ -156,12 +172,13 @@ if (customerId != null) {
   aria-labelledby="updateCustomerLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content" method="post">
+    <form id="customer-update-form" class="modal-content" action="customer.jsp" method="post">
       <div class="modal-header">
         <h5 class="modal-title text-secondary" id="updateCustomerLabel">Update Customer</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <input type="hidden" name="id" required="true">
         <input
           type="text"
           class="form-control mb-3"
@@ -200,7 +217,7 @@ if (customerId != null) {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-success">Update</button>
+        <button type="submit" name="update" class="btn btn-success">Update</button>
       </div>
     </form>
   </div>
