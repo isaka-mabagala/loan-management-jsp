@@ -1,10 +1,37 @@
 <%@ page session="true" pageEncoding="UTF-8" contentType="text/html;charset=UTF-8" %>
+<%@ page import="loan.LoanDAO" %>
+<%@ page import="loan.LoanBean" %>
+<%@ page import="java.util.ArrayList" %>
+<%@ page import="java.text.NumberFormat" %>
+<%@ page import="java.util.Locale" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<jsp:useBean id="loanBean" class="loan.LoanBean"/>
+<jsp:setProperty name="loanBean" property="*"/>
+
 <%
 request.setAttribute("title", "Loan");
 %>
+
 <jsp:include page="header.jsp">
   <jsp:param name="page" value="loan"/>
 </jsp:include>
+
+<%
+NumberFormat nf = NumberFormat.getInstance(new Locale("en", "US"));
+ArrayList<LoanBean> loans = LoanDAO.loans();
+request.setAttribute("loans", loans);
+request.setAttribute("nf", nf);
+
+// add loan form submited
+if (loanBean.getCustomerId() != null) {
+  LoanDAO.addLoan(loanBean);
+
+  response.sendRedirect("loan.jsp");
+  //out.print(LoanDAO.errorMessage);
+  return;
+}
+%>
 
 <div class="page-header mt-5">
   <div class="d-flex justify-content-between align-items-center">
@@ -35,25 +62,28 @@ request.setAttribute("title", "Loan");
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <th>1</th>
-        <td>Isaka Mabagala</td>
-        <td>2,000,000</td>
-        <td>600,000</td>
-        <td>Incomplete</td>
-        <td>15 Jan 2023</td>
-        <td>15 Feb 2023</td>
-        <td>
-          <button
-            type="button"
-            class="btn btn-primary btn-sm px-3"
-            data-bs-toggle="modal"
-            data-bs-target="#payLoan"
-          >
-            Pay
-          </button>
-        </td>
-      </tr>
+      <c:forEach items="${ loans }" var="loan" varStatus="loop">
+        <tr>
+          <th>${ loop.index + 1 }</th>
+          <td>${ loan.customer }</td>
+          <td>${ nf.format(loan.principal) }</td>
+          <td>${ nf.format(loan.outstanding) }</td>
+          <td>${ loan.status }</td>
+          <td>${ loan.issued }</td>
+          <td>${ loan.due }</td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm px-3"
+              data-bs-toggle="modal"
+              data-bs-target="#payLoan"
+              data-id="${ loan.id }"
+            >
+              Pay
+            </button>
+          </td>
+        </tr>
+      </c:forEach>
     </tbody>
   </table>
 </div>
@@ -68,7 +98,7 @@ request.setAttribute("title", "Loan");
   aria-labelledby="addLoanLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content" method="post">
+    <form class="modal-content" action="loan.jsp" method="post">
       <div class="modal-header">
         <h5 class="modal-title text-secondary" id="addLoanLabel">Add Loan</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

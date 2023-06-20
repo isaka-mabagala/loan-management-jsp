@@ -23,6 +23,7 @@ public class CustomerDAO {
       ps.setString(4, customer.getRegion());
       ps.setString(5, customer.getStreet());
       Integer rs = ps.executeUpdate();
+      con.close();
 
       return rs.equals(1);
 
@@ -52,6 +53,7 @@ public class CustomerDAO {
 
         customers.add(customer);
       }
+      con.close();
 
       return customers;
 
@@ -79,6 +81,7 @@ public class CustomerDAO {
         customer.setRegion(rs.getString(5));
         customer.setStreet(rs.getString(6));
       }
+      con.close();
 
       return customer;
 
