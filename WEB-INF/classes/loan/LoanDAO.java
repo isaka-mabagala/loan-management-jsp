@@ -45,6 +45,25 @@ public class LoanDAO {
     }
   }
 
+  public static Boolean payLoan(LoanBean loan) {
+    String query = "UPDATE loan SET payment=payment+? WHERE id=?";
+
+    try {
+      Connection con = DBConnection.getConnection();
+      PreparedStatement ps = con.prepareStatement(query);
+      ps.setDouble(1, loan.getPayment());
+      ps.setInt(2, loan.getId());
+      Integer rs = ps.executeUpdate();
+      con.close();
+
+      return rs.equals(1);
+
+    } catch (Exception e) {
+      errorMessage = e.getMessage();
+      return false;
+    }
+  }
+
   public static ArrayList<LoanBean> loans() {
     ArrayList<LoanBean> loans = new ArrayList<LoanBean>();
     String query = """

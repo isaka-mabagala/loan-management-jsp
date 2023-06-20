@@ -31,6 +31,15 @@ if (loanBean.getCustomerId() != null) {
   //out.print(LoanDAO.errorMessage);
   return;
 }
+
+// pay loan form submited
+if (loanBean.getPayment() != null) {
+  LoanDAO.payLoan(loanBean);
+
+  response.sendRedirect("loan.jsp");
+  //out.print(LoanDAO.errorMessage);
+  return;
+}
 %>
 
 <div class="page-header mt-5">
@@ -72,15 +81,17 @@ if (loanBean.getCustomerId() != null) {
           <td>${ loan.issued }</td>
           <td>${ loan.due }</td>
           <td>
-            <button
-              type="button"
-              class="btn btn-primary btn-sm px-3"
-              data-bs-toggle="modal"
-              data-bs-target="#payLoan"
-              data-id="${ loan.id }"
-            >
-              Pay
-            </button>
+            <c:if test="${ loan.status != 'Complete'}">
+              <button
+                type="button"
+                class="btn-loan-pay btn btn-primary btn-sm px-3"
+                data-bs-toggle="modal"
+                data-bs-target="#payLoan"
+                data-id="${ loan.id }"
+              >
+                Pay
+              </button>
+            </c:if>
           </td>
         </tr>
       </c:forEach>
@@ -148,18 +159,18 @@ if (loanBean.getCustomerId() != null) {
   aria-labelledby="payLoanLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <form class="modal-content" method="post">
+    <form id="loan-pay-form" action="loan.jsp" class="modal-content" method="post">
       <div class="modal-header">
         <h5 class="modal-title text-secondary" id="payLoanLabel">Payment</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <input type="hidden" name="customerId" value="100">
+        <input type="hidden" name="id">
         <input
           type="number"
           class="form-control mb-3"
           placeholder="amount"
-          name="amount"
+          name="payment"
           required="true"
         >
       </div>
